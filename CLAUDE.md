@@ -39,28 +39,37 @@ Use the Playwright MCP server to browse supplier websites, check product availab
 
 Use Typst (`typst compile`) to render final PDF reports from `.typ` source files in `outputs/`.
 
-## Agent Skills
+## Agents and Skills
 
-### search-local-suppliers
+This repo ships two sub-agents and three user-invocable skills. They chain together: a skill dispatches an agent (or two) to do the work.
 
-When asked to search for a product locally:
+### Agents (`.claude/agents/`)
 
-1. Read `whitelist.md` for the current supplier list
-2. Use Playwright to search each local Israeli supplier site for the requested product
-3. Capture screenshots of relevant product pages
-4. Compile findings into a dated recommendation file
+| Agent | File | Purpose |
+|---|---|---|
+| **research-agent** | `.claude/agents/research-agent.md` | Browses supplier sites via Playwright, captures screenshots, writes a dated recommendation to `recommendations/` |
+| **report-agent** | `.claude/agents/report-agent.md` | Reads a recommendation file, generates a Typst `.typ` source, compiles it to PDF in `outputs/` |
 
-### search-all-suppliers
+### Skills (`.claude/skills/`)
 
-Same as above but includes international sources (AliExpress, Amazon).
+| Skill | File | What it does |
+|---|---|---|
+| `/search-local-suppliers` | `.claude/skills/search-local-suppliers.md` | Launches **research-agent** (scope: local) then **report-agent** to produce a PDF |
+| `/search-all-suppliers` | `.claude/skills/search-all-suppliers.md` | Launches **research-agent** (scope: all) then **report-agent** to produce a PDF |
+| `/generate-report` | `.claude/skills/generate-report.md` | Launches **report-agent** on an existing recommendation file |
 
-### generate-report
+### Flow
 
-Compile a recommendation into a formatted PDF:
-
-1. Read the recommendation markdown from `recommendations/`
-2. Generate a Typst `.typ` file in `outputs/`
-3. Compile to PDF with `typst compile`
+```
+User: /search-local-suppliers Edding 780 paint marker
+  -> research-agent (scope: local)
+     -> Playwright: browse each Israeli supplier
+     -> Write: recommendations/2026-05-06-edding-780-paint-marker.md + screenshots
+  -> report-agent
+     -> Read recommendation, generate Typst source
+     -> typst compile -> outputs/2026-05-06-edding-780-paint-marker.pdf
+  -> Return summary + PDF path to user
+```
 
 ## Output Conventions
 
