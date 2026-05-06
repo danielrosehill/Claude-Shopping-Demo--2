@@ -1,26 +1,22 @@
 ---
 name: generate-report
-description: Generate a PDF report from an existing recommendation
+description: Generate a PDF report from an existing research run
 user_invocable: true
 ---
 
 # Generate Report
 
-Convert an existing recommendation file into a formatted Typst PDF.
+Convert an existing research run's recommendation into a formatted Typst PDF.
 
 ## Usage
 
 ```
-/generate-report <date-slug or filename>
+/generate-report <run_id>
 ```
-
-Examples:
-- `/generate-report 2026-05-06-edding-780-paint-marker`
-- `/generate-report recommendations/2026-05-06-edding-780-paint-marker.md`
 
 ## Behavior
 
-1. Locate the recommendation file in `recommendations/`.
-2. Launch the **report-agent** with the path to that file.
-3. The agent will generate a Typst `.typ` file and compile it to PDF in `outputs/`.
+1. Look up the `run_id` in `metadata.json` to confirm it exists, or locate `outputs/<run_id>/<run_id>.md` directly.
+2. Launch **report-agent** with the `run_id`.
+3. Once the PDF is generated, update the `report_pdf` field in `metadata.json` if not already set.
 4. Report back with the path to the generated PDF.

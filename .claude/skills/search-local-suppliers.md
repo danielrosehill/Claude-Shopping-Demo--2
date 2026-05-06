@@ -16,10 +16,31 @@ Search all local (Israel-based) suppliers from the whitelist for a specific prod
 
 ## Behavior
 
-1. Launch the **research-agent** with scope `local` and the provided product query.
-2. The agent will:
-   - Browse each Israeli supplier from `whitelist.md` using Playwright
-   - Capture screenshots of product pages
-   - Write a dated recommendation to `recommendations/YYYY-MM-DD-<slug>.md`
-3. Once the research agent completes, launch the **report-agent** to generate a PDF from the recommendation.
-4. Report back with the recommendation summary and the path to the PDF in `outputs/`.
+1. Generate a random UUID for this run (the `run_id`).
+2. Clean up the user's request into a concise product query.
+3. Save the prompt to `inputs/prompts/<run_id>.md` with content:
+   ```
+   # Product Search
+
+   **Run ID:** <run_id>
+   **Date:** YYYY-MM-DD
+   **Scope:** local
+   **Query:** <cleaned-up product query>
+   **Raw input:** <original user message>
+   ```
+4. Launch **research-agent** with the `run_id`, product query, and scope `local`.
+5. Once research completes, launch **report-agent** with the same `run_id`.
+6. Update `metadata.json` at the repo root — append an entry:
+   ```json
+   {
+     "run_id": "<run_id>",
+     "date": "YYYY-MM-DD",
+     "query": "<cleaned-up product query>",
+     "scope": "local",
+     "prompt": "inputs/prompts/<run_id>.md",
+     "output_dir": "outputs/<run_id>/",
+     "report_md": "outputs/<run_id>/<run_id>.md",
+     "report_pdf": "outputs/<run_id>/<run_id>.pdf"
+   }
+   ```
+7. Report back with the recommendation summary and the path to the PDF.
